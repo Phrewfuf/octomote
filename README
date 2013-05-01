@@ -1,0 +1,8 @@
+RC-Remote
+
+A spontaneous Project about building a custom RC-Remote.
+Already contains four (yes 4) analog joysticks.
+More controls in form of potentiometers and toggle-switches
+are planned.
+
+Misusing atmega16-16m as A/D-Converters with I2C/SPI interface.
