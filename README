@@ -4,6 +4,9 @@ A spontaneous Project about building a custom RC-Remote.
 Already contains four (yes 4) analog joysticks.
 More controls in form of potentiometers and toggle-switches
 are planned.
+Will contain a graphical I2C display for setup and live information.
 
 Misusing atmega16-16m (44-pin QFN package) as A/D-Converters with I2C/SPI interface
 as i've got a buttload of those laying around with no use.
+
+
