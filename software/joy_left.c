@@ -23,6 +23,7 @@ ISR (TWI_vect);
 
 void twi_init_slave(uint8_t address);
 void adc_init();
+uint8_t readADC(uint8_t channel);
 
 int main (void)
 {
@@ -75,5 +76,39 @@ void adc_init()
 	//set Reference Voltage to AVcc
 	ADMUX |= (1<<REFS0);
 	ADMUX &= ~(1<<REFS1);
-	ADMUX &= ~(1<<ADLAR);
+	ADMUX |= (1<<ADLAR); //left-align result, bits 9:2 in ADCH, 1:0 in ADCL
+	//set Channel to ADC0
+	ADMUX &= ~((1<<MUX0) | (1<<MUX1) | (1<<MUX2) | (1<<MUX3) | (1<<MUX4));
+	//set Prescaler to 125KHz
+	ADCSRA |= ((1<<ADPS2) | (1<<ADPS1) | (1<<ADPS0));
+	//Disable trigger mode
+	ADCSRA &= ~(1<<ADATE);
+	//enable high speed mode
+	ADCSRB |= (1<<ADHSM);
+	//Enabling ADC
+	ADCSRA |= (1<<ADEN);
+	//initialize ADC
+	ADCSRA |= (1<<ADSC);
+	// Wait for the ADC conversion to complete
+	while(ADCSRA & (1 << ADSC));
+}
+
+uint8_t readADC(uint8_t channel)
+{
+	uint8_t muxreg = ADMUX;
+	uint8_t mux = 0;
+	// Clear the previous result
+	ADCH = 0x00;
+	ADCL = 0x00;
+
+	//set ADMUX to correct channel
+	mux = muxreg && 0x07;
+
+	// Set ADSC to start an ADC conversion
+	ADCSRA |= (1<<ADSC);
+
+	// Wait for the ADC conversion to complete
+	while(ADCSRA & (1 << ADSC));
+
+	return ADCH;
 }
