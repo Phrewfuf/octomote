@@ -19,17 +19,39 @@
 
 uint8_t i2cdata[BUFFER_SIZE];
 uint8_t i2cdata_adr;
-ISR (TWI_vect);
+ISR(TWI_vect);
 
+void setup();
 void twi_init_slave(uint8_t address);
 void adc_init();
 uint8_t readADC(uint8_t channel);
 
 int main (void)
 {
-	twi_init_slave(SLAVE_ADDRESS);
-	
+	uint8_t i = 0;
+	setup();
+
+	for (i = 0; i < 4; i++)
+	{
+		
+		
+		//make this thing an andless loop
+		if (i == 3)
+		{
+			i = 0;
+		}
+	}
 	return 0;
+}
+
+void setup()
+{
+	twi_init_slave(SLAVE_ADDRESS);
+	adc_init();
+
+	//set BUT_LB and BUT_LT as inputs and activate pull-ups
+	DDRD &= ~((1<<BUT_LB)|(1<<BUT_LT));
+	PORTB |= ((1<<BUT_LB)|(1<<BUT_LT));
 }
 
 void twi_init_slave(uint8_t address);
@@ -76,7 +98,8 @@ void adc_init()
 	//set Reference Voltage to AVcc
 	ADMUX |= (1<<REFS0);
 	ADMUX &= ~(1<<REFS1);
-	ADMUX |= (1<<ADLAR); //left-align result, bits 9:2 in ADCH, 1:0 in ADCL
+	//left-align result, bits 9:2 in ADCH, 1:0 in ADCL
+	ADMUX |= (1<<ADLAR);
 	//set Channel to ADC0
 	ADMUX &= ~((1<<MUX0) | (1<<MUX1) | (1<<MUX2) | (1<<MUX3) | (1<<MUX4));
 	//set Prescaler to 125KHz
@@ -95,20 +118,17 @@ void adc_init()
 
 uint8_t readADC(uint8_t channel)
 {
-	uint8_t muxreg = ADMUX;
-	uint8_t mux = 0;
 	// Clear the previous result
 	ADCH = 0x00;
 	ADCL = 0x00;
 
-	//set ADMUX to correct channel
-	mux = muxreg && 0x07;
+	//set ADMUX to correct channel without altering the rest
+	ADMUX = (ADMUX & ~7) | channel;
 
 	// Set ADSC to start an ADC conversion
 	ADCSRA |= (1<<ADSC);
 
 	// Wait for the ADC conversion to complete
 	while(ADCSRA & (1 << ADSC));
-
 	return ADCH;
 }
