@@ -34,7 +34,15 @@ int main (void)
 	for (i = 0; i < 4; i++)
 	{
 		
-		
+		if(~BUT_LT)
+			i2cdata[4] |= 1;
+		else
+			i2cdata[4] &= ~1;
+		if(~BUT_LB)
+			i2cdata[4] |= 2;
+		else
+			i2cdata[4] &= ~2;
+		readADC(i);
 		//make this thing an andless loop
 		if (i == 3)
 		{
